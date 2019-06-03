@@ -6,7 +6,11 @@ const Model = Sequelize.Model;
 class TransactionCount extends Model {}
 TransactionCount.init({
   txCount: {
-    type: Sequelize.NUMBER,
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  lastBlockChecked: {
+    type: Sequelize.INTEGER,
     allowNull: false,
   },
   company: {

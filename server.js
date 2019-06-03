@@ -75,15 +75,15 @@ app.get('/sync', async (req, res) => {
 
 app.get('/lunieTransactionCount', async (req, res) => {
 
-  //Query db to get the current transaction count
-  const LunieObj = await TransactionCount.findOne({
+  // Query db to get the current transaction count
+  const lunieObj = await TransactionCount.findOne({
     where: {
       company: 'Lunie'
     },
   });
 
-  res.status(200).send(lunieObj.txCount);
-
+  res.status(200).send(`Total Lunie transaction count: ${lunieObj.dataValues.txCount} at block height: ${lunieObj.dataValues.lastBlockChecked}`);
+  
 });
 
 
