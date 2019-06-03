@@ -80,22 +80,17 @@ app.get('/sync', async (req, res) => {
         let newestBlockHeight = response.data.block_meta.header.height;
         let previousBlockHeight = lunieObj.dataValues.lastBlockChecked  + 1; //Incremented by 1 to avoid double counting
 
-        // await searchTxFunc(previousBlockHeight, newestBlockHeight);
-        await searchTxFunc(100000, 110000);
-  
-        console.log('awaited lunieTransactionCount ====', transactionCount);
+        
+        //TODO:
+          // await searchTxFunc(previousBlockHeight, newestBlockHeight);
+          // update db with new transaction count and last block number used for update
+
       })()
 
     })
     .catch((error) => {
       console.log('Error getting network data: ', error);
     })
-
-
-    // call searchTxFunc to update from the last used block number (exlusively) to the most recent block (inclusively)
-      // searchTxFunc(500000, 517790);  
-    // update db with new transaction count and last block number used for update
-
 
   // res.status(200).send('Sync completed');
 });
