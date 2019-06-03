@@ -27,10 +27,15 @@ app.get('/sync', async (req, res) => {
   // Loops through blocks and if there are transactions the transactions as well.
   // Purpose: To identify and count transactions that have the Lunie signature in their memo's
   searchTxFunc = (startBlock, endBlock) => {
-    for (let i = startBlock; i <= endBlock; i++) {
-      axios.get(`https://stargate.cosmos.network/txs?tx.height=${i}`)
-        .then((response) => {
+    let promisesArr = [];
 
+    for (let i = startBlock; i <= endBlock; i++) {
+      promisesArr.push(axios.get(`https://stargate.cosmos.network/txs?tx.height=${i}`));
+    };
+
+    axios.all(promisesArr)
+      .then((results) => {
+        results.forEach((response, index) => {
           let data = response.data;
 
           // checks if there was a transaction included in the block
@@ -53,15 +58,40 @@ app.get('/sync', async (req, res) => {
             };
           };
         })
-        .catch((error) => {
-          console.log('Error getting network data: ', error);
-        })
-    };
+      })
+      .catch((error) => {
+        console.log('Error getting network data: ', error);
+      });
   };
 
+
   // GET the latest block height
-    // from https://stargate.cosmos.network/blocks/latest
-    // retrieve the last block number updated to from db
+  axios.get('https://stargate.cosmos.network/blocks/latest')
+    .then((response) => {
+
+      (async () => {
+        // Get the last block height that was used to sync
+        const lunieObj = await TransactionCount.findOne({
+          where: {
+            company: 'Lunie'
+          },
+        });
+
+        let newestBlockHeight = response.data.block_meta.header.height;
+        let previousBlockHeight = lunieObj.dataValues.lastBlockChecked  + 1; //Incremented by 1 to avoid double counting
+
+        // await searchTxFunc(previousBlockHeight, newestBlockHeight);
+        await searchTxFunc(100000, 110000);
+  
+        console.log('awaited lunieTransactionCount ====', transactionCount);
+      })()
+
+    })
+    .catch((error) => {
+      console.log('Error getting network data: ', error);
+    })
+
+
     // call searchTxFunc to update from the last used block number (exlusively) to the most recent block (inclusively)
       // searchTxFunc(500000, 517790);  
     // update db with new transaction count and last block number used for update
@@ -83,7 +113,7 @@ app.get('/lunieTransactionCount', async (req, res) => {
   });
 
   res.status(200).send(`Total Lunie transaction count: ${lunieObj.dataValues.txCount} at block height: ${lunieObj.dataValues.lastBlockChecked}`);
-  
+
 });
 
 
