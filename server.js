@@ -63,9 +63,9 @@ app.get('/sync', async (req, res) => {
     // from https://stargate.cosmos.network/blocks/latest
     // retrieve the last block number updated to from db
     // call searchTxFunc to update from the last used block number (exlusively) to the most recent block (inclusively)
+      // searchTxFunc(500000, 517790);  
     // update db with new transaction count and last block number used for update
 
-  // searchTxFunc(500000, 517790);  
 
   // res.status(200).send('Sync completed');
 });
